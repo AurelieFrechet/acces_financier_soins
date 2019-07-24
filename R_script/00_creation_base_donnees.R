@@ -263,11 +263,16 @@ Delai_rdv_agreg <-
 Delai_rdv_agreg[, c("depassement_moy_pct",
                     "depassement_med_pct",
                     "delai_moy_fct",
-                    "delai_med_fct") := .(
+                    "delai_med_fct",
+                    "mytext") := .(
                       round(depassement_moy / 28 * 100, 2),
                       round(depassement_med / 28 * 100, 2),
                       tranche_delai(delai_moy),
-                      tranche_delai(delai_med)
+                      tranche_delai(delai_med),
+                      paste("Ville :", Nom_commune,
+                            "\n Délais moyen :", floor(delai_moy),
+                            "jours \n Dépassement moyen :",round(depassement_moy / 28 * 100, 2),
+                            "%")
                     )]
 
 saveRDS(
