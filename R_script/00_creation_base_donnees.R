@@ -4,11 +4,13 @@
 
 
 
-## 00 - Chargement des packages ----
+## 00 - Chargement des packages de fonctions----
 
 library(readxl)
 library(data.table)
+library(dplyr)
 
+# Découpage du délai en modalités ordonnées
 tranche_delai <- function(delai) {
   resultat <-
     factor(
@@ -74,7 +76,7 @@ nettoyage_nom_ville <- function(ville){
 # souce : https://www.data.gouv.fr/fr/datasets/base-officielle-des-codes-postaux/
 villes_france <-
   read.csv(
-    file = "~/UnJourUneViz/Accès financier aux soins/data/laposte_hexasmal.csv",
+    file = "~/UnJourUneViz/acces_financier_soins/data/laposte_hexasmal.csv",
     header = TRUE,
     sep = ";",
     stringsAsFactors = FALSE
@@ -97,13 +99,13 @@ villes_france$long <- as.numeric(sapply(
 
 
 saveRDS(villes_france,
-        "~/UnJourUneViz/Accès financier aux soins/data/villes_france.RDS")
+        "~/UnJourUneViz/acces_financier_soins/data/villes_france.RDS")
 
 ## 01.B - Données gynécos 2012 ----
 
 # source : https://www.data.gouv.fr/fr/datasets/delai-d-attente-rendez-vous-gynecologue-0/
 Delai_rdv_gynecos_2012 <-
-  read_excel("~/UnJourUneViz/Accès financier aux soins/data/Delai_rdv_gynecos_2012.xlsx")
+  read_excel("~/UnJourUneViz/acces_financier_soins/data/Delai_rdv_gynecos_2012.xlsx")
 str(Delai_rdv_gynecos_2012)
 colnames(Delai_rdv_gynecos_2012) <- c("ville",
                                       "date_appel",
@@ -141,14 +143,14 @@ Delai_rdv_gynecos_2012$delai_rdv2 <-
 
 saveRDS(
   Delai_rdv_gynecos_2012,
-  "~/UnJourUneViz/Accès financier aux soins/data/Delai_rdv_gynecos_2012.RDS"
+  "~/UnJourUneViz/acces_financier_soins/data/Delai_rdv_gynecos_2012.RDS"
 )
 
 ## 01.C - Données ophtalmos 2012 ----
 
 # source : https://www.data.gouv.fr/fr/datasets/delai-d-attente-rendez-vous-ophtalmologiste-0/
 Delai_rdv_ophtalmos_2012 <-
-  read_excel("~/UnJourUneViz/Accès financier aux soins/data/Delai_rdv_ophtalmos_2012.xlsx")
+  read_excel("~/UnJourUneViz/acces_financier_soins/data/Delai_rdv_ophtalmos_2012.xlsx")
 str(Delai_rdv_ophtalmos_2012)
 colnames(Delai_rdv_ophtalmos_2012) <- c("ville",
                                         "date_appel",
@@ -186,7 +188,7 @@ Delai_rdv_ophtalmos_2012$delai_rdv2 <-
 
 saveRDS(
   Delai_rdv_ophtalmos_2012,
-  "~/UnJourUneViz/Accès financier aux soins/data/Delai_rdv_ophtalmos_2012.RDS"
+  "~/UnJourUneViz/acces_financier_soins/data/Delai_rdv_ophtalmos_2012.RDS"
 )
 
 
@@ -194,7 +196,7 @@ saveRDS(
 
 # source : https://www.data.gouv.fr/fr/datasets/delai-d-attente-rendez-vous-pediatre-0/
 Delai_rdv_pediatres_2012 <-
-  read_excel("~/UnJourUneViz/Accès financier aux soins/data/Delai_rdv_pediatres_2012.xlsx")
+  read_excel("~/UnJourUneViz/acces_financier_soins/data/Delai_rdv_pediatres_2012.xlsx")
 str(Delai_rdv_pediatres_2012)
 colnames(Delai_rdv_pediatres_2012) <- c("ville",
                                         "date_appel",
@@ -232,7 +234,7 @@ Delai_rdv_pediatres_2012$delai_rdv2 <-
 
 saveRDS(
   Delai_rdv_pediatres_2012,
-  "~/UnJourUneViz/Accès financier aux soins/data/Delai_rdv_pediatres_2012.RDS"
+  "~/UnJourUneViz/acces_financier_soins/data/Delai_rdv_pediatres_2012.RDS"
 )
 
 ## 02 - Agregagtions des tables ----
@@ -257,7 +259,7 @@ Delai_rdv_agreg <-
     delai_moy = mean(delai_rdv),
     delai_med = median(delai_rdv)
   ),
-  by = .(specialiste, ville, lat, long)]
+  by = .(specialiste, Nom_commune, lat, long)]
 Delai_rdv_agreg[, c("depassement_moy_pct",
                     "depassement_med_pct",
                     "delai_moy_fct",
@@ -267,6 +269,11 @@ Delai_rdv_agreg[, c("depassement_moy_pct",
                       tranche_delai(delai_moy),
                       tranche_delai(delai_med)
                     )]
+
+saveRDS(
+  Delai_rdv_agreg,
+  "~/UnJourUneViz/acces_financier_soins/data/Delai_rdv_agreg.RDS"
+)
 
 # Etude complete : https://www.quechoisir.org/action-ufc-que-choisir-acces-aux-soins-en-france-la-fracture-s-aggrave-n21799/
 
